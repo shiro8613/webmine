@@ -19,7 +19,12 @@ async fn main() -> io::Result<()> {
     loop {
         let (stream, _) = listener.accept().await?;
         let config = Arc::clone(&app_config);
-        spawn(async move { handle_client(stream, config).await });
+        spawn(async move { 
+            match handle_client(stream, config).await {
+                Ok(_) => {},
+                Err(e) => panic!("{:?}", e),
+            }
+        });
     }
 }
 
