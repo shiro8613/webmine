@@ -1,10 +1,12 @@
-FROM rust:latest as build
+#https://note.com/minato_kame/n/n8b919b05bc25
+#rustをbuildするコンテナ
+FROM rust:latest as builder
+WORKDIR /build
 COPY . .
-# Build
-RUN cargo install --config net.git-fetch-with-cli=true --path .
+RUN cargo build --release
 
-FROM debian:bullseye-slim
-# Copy executable
-COPY --from=build /usr/local/cargo/bin/webmine /usr/local/bin/webmine
-# Run a server
-ENTRYPOINT [ "webmine" ]
+#buildしたバイナリをpushするコンテナ
+FROM rust:latest
+WORKDIR /app
+COPY --from=builder /build/target/release/webmine .
+CMD ["./webmine"]
